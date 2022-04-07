@@ -18,15 +18,19 @@ let mainWindow;
 const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 420,
+    height: 650,
+    frame: true,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
   mainWindow.setMenu(null);
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
   //mainWindow.loadURL("http://localhost:8000/red");
   // Open the DevTools.
-  if(debug == "DEV") mainWindow.webContents.openDevTools();
+  if (debug == "DEV") mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
@@ -57,7 +61,6 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
-  
 });
 
 // In this file you can include the rest of your app's specific main process
