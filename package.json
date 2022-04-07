@@ -1,6 +1,6 @@
 {
   "name": "nodered-portable",
-  "productName": "nodered-portable",
+  "productName": "Node-RED Portable",
   "version": "1.1.2",
   "description": "Node-RED: Portable Version",
   "homepage": "http://nodered.org",
@@ -37,7 +37,7 @@
       "electronInstallerRedhat": {},
       "windowsStoreConfig": {
         "packageName": "",
-        "name": "noderedportable"
+        "name": "nodered-portable"
       }
     }
   },

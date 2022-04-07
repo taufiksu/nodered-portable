@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#007aff">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
-    <title>Node-Red Portable</title>
+    <title>Node-RED Portable</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,8 +23,49 @@
     <div id="app">
         <div class="view view-main view-init safe-areas">
             <div class="page" data-name="index">
+                <div class="navbar no-shadow no-border">
+                    <div class="navbar-bg"></div>
+                    <div class="navbar-inner">
+                        <div class="left">&nbsp;</div>
+                        <div class="title">Node-RED Portable</div>
+                        <div class="right">&nbsp;
+                        </div>
+                    </div>
+                </div>
                 <div class="page-content">
-                    <!-- Splash Screen -->
+                    <div class="card">
+                        <div class="card-content">
+                            <form name="server">
+                                <div class="list no-hairlines no-hairlines-between">
+                                    <ul>
+                                        <li class="item-content item-input">
+                                            <div class="item-inner">
+                                                <div class="item-title item-label">Port</div>
+                                                <div class="item-input-wrap">
+                                                    <input type="text" placeholder="1880" />
+                                                    <span class="input-clear-button"></span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="item-content item-input">
+                                            <div class="item-inner">
+                                                <div class="item-title item-label">Admin Path</div>
+                                                <div class="item-input-wrap">
+                                                    <input type="text" placeholder="/red" />
+                                                    <span class="input-clear-button"></span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row margin">
+                        <div class="col-100">
+                            <a class="button button-fill col" id="start">Start Server</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -72,7 +113,7 @@
                     var settings = {
                         port: "1880",
                         adminPath: "/red",
-                        nodePath: "/api"
+                        nodePath: "/"
                     };
 
                     // send configs to background script
@@ -85,9 +126,11 @@
             }
         }
 
-        app.dialog.preloader('Starting Node-Red');
+        $(document).on('click', '#start', function () {
+            app.dialog.preloader('Starting Node-Red');
 
-        sendWebsocket();
+            sendWebsocket();
+        });
     </script>
 </body>
 

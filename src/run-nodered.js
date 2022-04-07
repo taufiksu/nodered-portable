@@ -36,7 +36,7 @@ module.exports = function () {
         // Create the settings object - see default settings.js file for other options
         var settings = {
             httpAdminRoot: inputs.adminPath || "/red",
-            httpNodeRoot: inputs.nodePath || "/api",
+            httpNodeRoot: inputs.nodePath || "/",
             userDir: ".",
             httpStatic: "public",
             contextStorage: {
