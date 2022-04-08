@@ -76,6 +76,25 @@
     <script type="text/javascript">
         const { ipcRenderer } = require('electron');
         let socketPort = ipcRenderer.sendSync('getSocketPort');
+        var fs = require('fs');
+
+
+        fs.readFile("nodered_portable_config.txt", 'utf-8', (err, data) => {
+            if (err) {
+                fs.writeFileSync("nodered_portable_config.txt", '{"port": 1880 , "adminPath": "/red", "autostart": false}', 'utf-8');
+
+                return;
+            }
+
+            var status = JSON.parse(data);
+            console.log(status);
+            console.log(status.autostart);
+            if (status.autostart === true) {
+                app.dialog.preloader('Auto Start Node-Red');
+
+                sendWebsocket(status.port, status.adminPath);
+            }
+        });
 
         var url = null;
 
@@ -84,13 +103,12 @@
             path = path || "/red";
             if (path[0] != "/") path = "/" + path;
             url = `http://localhost:${port}${path}`;
+
             function getStatus() {
                 let xml = new XMLHttpRequest();
                 xml.open('GET', url, true);
                 xml.timeout = 1000;
                 xml.onload = function () {
-                    console.log(this);
-
                     if (this.status == 200) {
                         app.dialog.close();
 
@@ -149,13 +167,31 @@
         }
 
         $(document).on('click', '#start', function () {
-            app.dialog.preloader('Starting Node-Red');
-
             var formData = app.form.convertToData('#serverInfo');
 
-            console.log(formData);
+            app.dialog.confirm('Future Auto Start?', function () {
+                // Yes
+                app.dialog.preloader('Starting Node-Red');
 
-            sendWebsocket(formData.port, formData.adminPath);
+                if (formData.port === "" || formData.port === " ") {
+                    fs.writeFileSync("nodered_portable_config.txt", '{"port": 1880 , "adminPath": "' + formData.adminPath + '", "autostart": true}', 'utf-8');
+                } else {
+                    fs.writeFileSync("nodered_portable_config.txt", '{"port": ' + formData.port + ' , "adminPath": "' + formData.adminPath + '", "autostart": true}', 'utf-8');
+                }
+
+                sendWebsocket(formData.port, formData.adminPath);
+            }, function () {
+                // No
+                app.dialog.preloader('Starting Node-Red');
+
+                if (formData.port === "" || formData.port === " ") {
+                    fs.writeFileSync("nodered_portable_config.txt", '{"port": 1880 , "adminPath": "' + formData.adminPath + '", "autostart": false}', 'utf-8');
+                } else {
+                    fs.writeFileSync("nodered_portable_config.txt", '{"port": ' + formData.port + ' , "adminPath": "' + formData.adminPath + '", "autostart": false}', 'utf-8');
+                }
+
+                sendWebsocket(formData.port, formData.adminPath);
+            });
         });
     </script>
 </body>
