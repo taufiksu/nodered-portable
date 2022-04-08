@@ -1,9 +1,13 @@
-const debug = "PROD" || process.env.debug || "PROD";
+const debug = "DEV" || process.env.debug || "DEV";
 
-import { app, BrowserWindow } from 'electron';
+// import { app, BrowserWindow } from 'electron';
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+
+// Socket Port
+let socketPort = Math.floor(1000 + Math.random() * 9000);
 
 const nodered = require("./run-nodered.js");
-nodered();
+nodered(socketPort);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -13,7 +17,6 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-
 
 const createWindow = () => {
   // Create the browser window.
@@ -26,9 +29,10 @@ const createWindow = () => {
     }
   });
   mainWindow.setMenu(null);
-  // and load the index.html of the app.
+
+  // load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
-  //mainWindow.loadURL("http://localhost:8000/red");
+
   // Open the DevTools.
   if (debug == "DEV") mainWindow.webContents.openDevTools();
 
@@ -40,6 +44,10 @@ const createWindow = () => {
     mainWindow = null;
   });
 };
+
+ipcMain.on('getSocketPort', (event, args) => {
+  event.returnValue = socketPort;
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

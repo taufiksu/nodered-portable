@@ -75,6 +75,9 @@
     <script src="js/routes.js"></script>
     <script src="js/app.js"></script>
     <script type="text/javascript">
+        const { ipcRenderer } = require('electron');
+        let socketPort = ipcRenderer.sendSync('getSocketPort');
+        
         var url = null;
 
         function waitForConnection(port, path) {
@@ -87,10 +90,12 @@
                 xml.open('GET', url, true);
                 xml.timeout = 1000;
                 xml.onload = function () {
+                    console.log(this);
+
                     if (this.status == 200) {
                         app.dialog.close();
 
-                        clearInterval(noderedwindow);
+                        clearInterval(noderedWindow);
 
                         app.views.main.router.navigate('/home/');
                     } else {
@@ -100,14 +105,14 @@
                 xml.send();
             }
 
-            var noderedwindow = setInterval(getData, 5000);
+            var noderedWindow = setInterval(getData, 5000);
         }
 
         function sendWebsocket() {
             if ("WebSocket" in window) {
                 // Let us open a web socket
 
-                var ws = new WebSocket("ws://localhost:50820");
+                var ws = new WebSocket("ws://localhost:" + socketPort);
                 ws.onopen = function () {
                     // Web Socket is connected, send data using send()
                     var settings = {

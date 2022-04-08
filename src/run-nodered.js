@@ -1,17 +1,19 @@
-module.exports = function () {
+module.exports = function (socketPort) {
     const http = require('http');
     const express = require("express");
     let inputs;
 
     if (require.main === module) {
         inputs = {};
+
         startNodeRED();
     } else {
         const WebSocket = require('ws');
-        const WSv = new WebSocket.Server({ port: 50820 });
+        const WSv = new WebSocket.Server({ port: socketPort });
         let socket;
         WSv.on('connection', function (s) {
             socket = s;
+
             // When you receive a message, send that message to every socket.
             socket.on('message', function (msg) {
                 inputs = JSON.parse(msg);
@@ -54,9 +56,11 @@ module.exports = function () {
 
         // Add a simple route for static content served from 'public'
         app.use("/", express.static(settings.httpStatic));
+
         // Serve the editor UI from /red
         app.use(settings.httpAdminRoot, RED.httpAdmin);
-        // Serve the http nodes UI from /api
+
+        // Serve the http nodes UI from /
         app.use(settings.httpNodeRoot, RED.httpNode);
 
         REDserver.listen(inputs.port || 1880);
