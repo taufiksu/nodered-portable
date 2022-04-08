@@ -35,14 +35,14 @@
                 <div class="page-content">
                     <div class="card">
                         <div class="card-content">
-                            <form name="server">
+                            <form name="serverInfo" id="serverInfo">
                                 <div class="list no-hairlines no-hairlines-between">
                                     <ul>
                                         <li class="item-content item-input">
                                             <div class="item-inner">
                                                 <div class="item-title item-label">Port</div>
                                                 <div class="item-input-wrap">
-                                                    <input type="text" placeholder="1880" />
+                                                    <input name="port" type="text" placeholder="1880" />
                                                     <span class="input-clear-button"></span>
                                                 </div>
                                             </div>
@@ -51,8 +51,7 @@
                                             <div class="item-inner">
                                                 <div class="item-title item-label">Admin Path</div>
                                                 <div class="item-input-wrap">
-                                                    <input type="text" placeholder="/red" />
-                                                    <span class="input-clear-button"></span>
+                                                    <input name="adminPath" type="text" placeholder="/red" value="/red" disabled />
                                                 </div>
                                             </div>
                                         </li>
@@ -77,7 +76,7 @@
     <script type="text/javascript">
         const { ipcRenderer } = require('electron');
         let socketPort = ipcRenderer.sendSync('getSocketPort');
-        
+
         var url = null;
 
         function waitForConnection(port, path) {
@@ -85,7 +84,7 @@
             path = path || "/red";
             if (path[0] != "/") path = "/" + path;
             url = `http://localhost:${port}${path}`;
-            function getData() {
+            function getStatus() {
                 let xml = new XMLHttpRequest();
                 xml.open('GET', url, true);
                 xml.timeout = 1000;
@@ -105,36 +104,58 @@
                 xml.send();
             }
 
-            var noderedWindow = setInterval(getData, 5000);
+            var noderedWindow = setInterval(getStatus, 5000);
         }
 
-        function sendWebsocket() {
-            if ("WebSocket" in window) {
-                // Let us open a web socket
+        function sendWebsocket(port, path) {
+            port = port || 1880;
+            path = path || "/red";
+            if (path[0] != "/") path = "/" + path;
+            url = `http://localhost:${port}${path}`;
 
-                var ws = new WebSocket("ws://localhost:" + socketPort);
-                ws.onopen = function () {
-                    // Web Socket is connected, send data using send()
-                    var settings = {
-                        port: "1880",
-                        adminPath: "/red",
-                        nodePath: "/"
-                    };
+            app.request.get(url)
+                .then(function (res) {
+                    // console.log(res);
+                    if (res.status === 200) {
+                        app.dialog.close();
 
-                    // send configs to background script
-                    ws.send(JSON.stringify(settings));
-                    ws.close();
+                        app.views.main.router.navigate('/home/');
+                    }
+                })
+                .catch(function (err) {
+                    if (err.status === 0) { // No Server Started
+                        if ("WebSocket" in window) {
+                            // Let us open a web socket
 
-                    // transition to waiting for start
-                    waitForConnection(settings.port, settings.adminPath);
-                };
-            }
+                            var ws = new WebSocket("ws://localhost:" + socketPort);
+                            ws.onopen = function () {
+                                // Web Socket is connected, send data using send()
+                                var settings = {
+                                    port: port,
+                                    adminPath: "/red",
+                                    nodePath: "/"
+                                };
+
+                                // send configs to background script
+                                ws.send(JSON.stringify(settings));
+                                ws.close();
+
+                                // transition to waiting for start
+                                waitForConnection(settings.port, settings.adminPath);
+                            };
+                        }
+                    }
+                })
         }
 
         $(document).on('click', '#start', function () {
             app.dialog.preloader('Starting Node-Red');
 
-            sendWebsocket();
+            var formData = app.form.convertToData('#serverInfo');
+
+            console.log(formData);
+
+            sendWebsocket(formData.port, formData.adminPath);
         });
     </script>
 </body>
