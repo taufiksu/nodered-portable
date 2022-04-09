@@ -1,4 +1,4 @@
-const debug = "DEV" || process.env.debug || "DEV";
+const debug = "PROD" || process.env.debug || "PROD";
 
 // import { app, BrowserWindow } from 'electron';
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
